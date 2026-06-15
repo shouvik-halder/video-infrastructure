@@ -1,0 +1,22 @@
+version: '1.0'
+
+services:
+  mysql:
+    image: mysql
+    restart: always
+    container_name: video-infra-authentication-service
+
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user123
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: authenticationservicedb
+
+    ports:
+      - "3380:3306"
+
+    volumes:
+      - authenticationservice:/var/lib/mysql
+
+volumes:
+  authenticationservice:
