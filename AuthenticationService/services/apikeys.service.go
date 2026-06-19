@@ -28,12 +28,13 @@ func (apiServ *ApiKeysServiceImpl) CreateService(userId int64) (*models.ApiKeyRe
 	if err != nil {
 		return nil, err
 	}
-	apikeyStr := fmt.Sprintf("ak_%s_%s", keyID, keySecret)
-	keyHash:= helpers.HashKey(keySecret)
 
-	_ , dberr:=apiServ.apiRepo.Create(userId,keyID, keyHash)
-	if dberr!=nil{
-		return nil, err
+	apikeyStr := fmt.Sprintf("ak_%s_%s", keyID, keySecret)
+	keyHash := helpers.HashKey(keySecret)
+
+	_, dberr := apiServ.apiRepo.Create(userId, keyID, keyHash)
+	if dberr != nil {
+		return nil, dberr
 	}
 
 	return &models.ApiKeyResponse{
@@ -42,9 +43,26 @@ func (apiServ *ApiKeysServiceImpl) CreateService(userId int64) (*models.ApiKeyRe
 }
 
 func (apiServ *ApiKeysServiceImpl) GetService(keyId string) (*models.ApiKeyResponse, error) {
+	// apiKey, err := apiServ.apiRepo.Get(keyId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return &models.ApiKeyResponse{
+	// 	ApiKey: apiKey.KeyId,
+	// }, nil
 	return nil, nil
 }
 
 func (apiServ *ApiKeysServiceImpl) RevokeService(keyId string) error {
+	// rowsAffected, err := apiServ.apiRepo.Revoke(keyId)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// if rowsAffected == 0 {
+	// 	return fmt.Errorf("api key not found or already revoked")
+	// }
+
 	return nil
 }
