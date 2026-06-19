@@ -1,23 +1,43 @@
 package gateway
 
-import "ApiGateway/models"
+import (
+	"ApiGateway/models"
+)
 
-type ServiceRegistry struct{
+type ServiceRegistry struct {
 	routes map[string]models.Service
 }
 
-func NewServiceRegistry() *ServiceRegistry{
-	return &ServiceRegistry{}
+func NewServiceRegistry() *ServiceRegistry {
+	return &ServiceRegistry{
+		routes: make(map[string]models.Service),
+	}
 }
 
-func (s *ServiceRegistry) Register(prefix string, service models.Service){
-	s.routes[prefix]=service
+func (s *ServiceRegistry) Register(prefix string, service models.Service) {
+	s.routes[prefix] = service
 }
 
 func (s *ServiceRegistry) Resolve(path string) (models.Service, bool) {
-	service, ok:=s.routes[path]
-	if !ok{
+	service, ok := s.routes[path]
+	if !ok {
 		return models.Service{}, ok
 	}
 	return service, ok
+}
+
+// RegisterAll registers all microservices from config
+func (s *ServiceRegistry) RegisterAll(authServiceURL, uploadServiceURL string) {
+	if authServiceURL != "" {
+		s.Register("/auth", models.Service{
+			Name: "AuthenticationService",
+			URL:  authServiceURL,
+		})
+	}
+	if uploadServiceURL != "" {
+		s.Register("/upload", models.Service{
+			Name: "UploadService",
+			URL:  uploadServiceURL,
+		})
+	}
 }
