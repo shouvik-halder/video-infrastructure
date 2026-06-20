@@ -5,25 +5,25 @@ import (
 )
 
 type ServiceRegistry struct {
-	routes map[string]models.Service
+	services map[string]models.Service
 }
 
 func NewServiceRegistry() *ServiceRegistry {
 	return &ServiceRegistry{
-		routes: make(map[string]models.Service),
+		services: make(map[string]models.Service),
 	}
 }
 
 func (s *ServiceRegistry) Register(prefix string, service models.Service) {
-	s.routes[prefix] = service
+	s.services[prefix] = service
 }
 
-func (s *ServiceRegistry) Resolve(path string) (models.Service, bool) {
-	service, ok := s.routes[path]
+func (s *ServiceRegistry) Resolve(path string) (*models.Service, bool) {
+	service, ok := s.services[path]
 	if !ok {
-		return models.Service{}, ok
+		return nil, ok
 	}
-	return service, ok
+	return &service, ok
 }
 
 // RegisterAll registers all microservices from config

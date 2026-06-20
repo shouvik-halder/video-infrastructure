@@ -6,30 +6,56 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func InitialiseRouters(registry *gateway.ServiceRegistry) *chi.Mux {
-	router := chi.NewRouter()
-	router.Route("/api", func(r chi.Router) {
-		r.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
-			prefix := helpers.ExtractPrefix(req.URL.Path) // e.g., "/auth"
+func InitialiseRouters(
+	serviceRegistry *gateway.ServiceRegistry,
+	routeRegistry *gateway.RouteRegistry,
+) *chi.Mux {
 
-			service, ok := registry.Resolve(prefix)
+	router := chi.NewRouter()
+
+	router.Route("/api", func(r chi.Router) {
+
+		r.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
+
+			route, ok := routeRegistry.Resolve(
+				req.Method,
+				req.URL.Path,
+			)
+
 			if !ok {
-				http.Error(w, "Service not found", http.StatusNotFound)
+				http.Error(w, "route not found", http.StatusNotFound)
 				return
 			}
 
-			proxyRequest(w, req, service.URL, prefix)
+			service, ok := serviceRegistry.Resolve(route.ServiceKey)
+			if !ok {
+				http.Error(w, "service not found", http.StatusBadGateway)
+				return
+			}
+
+			proxyRequest(
+				w,
+				req,
+				service.URL,
+				route.TargetPath,
+			)
 		})
 	})
+
 	return router
 }
 
-func proxyRequest(w http.ResponseWriter, req *http.Request, targetURL string, prefix string) {
+func proxyRequest(
+	w http.ResponseWriter,
+	req *http.Request,
+	targetURL string,
+	targetPath string,
+) {
+
 	target, err := url.Parse(targetURL)
 	if err != nil {
 		http.Error(w, "Invalid service URL", http.StatusInternalServerError)
@@ -38,20 +64,26 @@ func proxyRequest(w http.ResponseWriter, req *http.Request, targetURL string, pr
 
 	proxy := &httputil.ReverseProxy{
 		Rewrite: func(proxyReq *httputil.ProxyRequest) {
+
 			proxyReq.SetURL(target)
 
-			originalPath := proxyReq.In.URL.Path
-			pathWithoutPrefix := strings.TrimPrefix(originalPath, "/api"+prefix)
-			proxyReq.Out.URL.Path = "/api" + pathWithoutPrefix
+			proxyReq.Out.URL.Path = targetPath
 
 			proxyReq.SetXForwarded()
+
 			requestID := proxyReq.In.Header.Get("X-Request-ID")
 			if requestID == "" {
 				requestID = helpers.GenerateRequestID()
 			}
-			proxyReq.Out.Header.Set("X-Request-ID", requestID)
 
-			proxyReq.Out.Header.Del("X-Internal-Secret")
+			proxyReq.Out.Header.Set(
+				"X-Request-ID",
+				requestID,
+			)
+
+			proxyReq.Out.Header.Del(
+				"X-Internal-Secret",
+			)
 		},
 	}
 
