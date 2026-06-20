@@ -29,3 +29,22 @@ func (apiKeysContr *ApiKeysController) CreateController(w http.ResponseWriter, r
 	}
 	utils.WriteResponseJson(w, http.StatusCreated, response)
 }
+
+func (apiKeysContr *ApiKeysController) VerifyController(w http.ResponseWriter, r *http.Request) {
+	apiKey, ok := helpers.GetApiKey(r.Context())
+	if !ok {
+		utils.WriteErrorResponseJson(w, http.StatusUnauthorized, "provide valid api key")
+		return
+	}
+	userId, ok := helpers.GetUserId(r.Context())
+	if !ok {
+		utils.WriteErrorResponseJson(w, http.StatusUnauthorized, "provide valid authorization token")
+		return
+	}
+	response, err := apiKeysContr.apiKeysService.VerifyService(apiKey, userId)
+	if err != nil {
+		utils.WriteErrorResponseJson(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	utils.WriteResponseJson(w, http.StatusOK, response)
+}

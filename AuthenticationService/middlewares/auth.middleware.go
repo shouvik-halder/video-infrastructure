@@ -37,3 +37,13 @@ func ValidateToken() func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func ExtractApiKey() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			apiKey := r.Header.Get("X-API-Key")
+			ctx := context.WithValue(r.Context(), constants.ApiKeyContextKey, apiKey)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}

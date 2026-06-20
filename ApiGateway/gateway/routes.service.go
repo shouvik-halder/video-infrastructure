@@ -1,10 +1,11 @@
 package gateway
 
 type RouteMapping struct {
-	Method     string
-	PublicPath string
-	ServiceKey string
-	TargetPath string
+	Method      string
+	PublicPath  string
+	ServiceKey  string
+	TargetPath  string
+	RequireAuth bool // Whether this route requires API key verification
 }
 
 type RouteRegistry struct {
@@ -33,18 +34,39 @@ func (r *RouteRegistry) Resolve(method, path string) (*RouteMapping, bool) {
 	return &route, true
 }
 
-func (rr *RouteRegistry) RegisterAll() {
-	rr.Register(RouteMapping{
-		Method:     "POST",
-		PublicPath: "/api/auth/user/login",
-		ServiceKey: "/auth",
-		TargetPath: "/api/v1/user/login",
+func (r *RouteRegistry) RegisterAll() {
+	// Public auth routes (no authentication required)
+	r.Register(RouteMapping{
+		Method:      "POST",
+		PublicPath:  "/api/auth/user/login",
+		ServiceKey:  "/auth",
+		TargetPath:  "/api/v1/user/login",
+		RequireAuth: false,
 	})
 
-	rr.Register(RouteMapping{
-		Method:     "POST",
-		PublicPath: "/api/auth/user/register",
-		ServiceKey: "/auth",
-		TargetPath: "/api/v1/user/register",
+	r.Register(RouteMapping{
+		Method:      "POST",
+		PublicPath:  "/api/auth/user/register",
+		ServiceKey:  "/auth",
+		TargetPath:  "/api/v1/user/register",
+		RequireAuth: false,
+	})
+
+	// Protected auth routes (require API key verification)
+	r.Register(RouteMapping{
+		Method:      "GET",
+		PublicPath:  "/api/auth/api-key/verify",
+		ServiceKey:  "/auth",
+		TargetPath:  "/api/v1/api-key/verify",
+		RequireAuth: true,
+	})
+
+	// Protected upload service routes (require API key verification)
+	r.Register(RouteMapping{
+		Method:      "GET",
+		PublicPath:  "/api/upload/ping",
+		ServiceKey:  "/upload",
+		TargetPath:  "/ping",
+		RequireAuth: true,
 	})
 }

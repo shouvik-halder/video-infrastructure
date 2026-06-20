@@ -3,6 +3,7 @@ package routers
 import (
 	"ApiGateway/gateway"
 	"ApiGateway/helpers"
+	"ApiGateway/middlewares"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -31,22 +32,41 @@ func InitialiseRouters(
 				return
 			}
 
-			service, ok := serviceRegistry.Resolve(route.ServiceKey)
-			if !ok {
-				http.Error(w, "service not found", http.StatusBadGateway)
+			// Apply authentication middleware if route requires it
+			if route.RequireAuth {
+				authMiddleware := middlewares.AuthenticateApiKey()
+				authMiddleware(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+					proxyToService(w, req, serviceRegistry, route)
+				})).ServeHTTP(w, req)
 				return
 			}
 
-			proxyRequest(
-				w,
-				req,
-				service.URL,
-				route.TargetPath,
-			)
+			proxyToService(w, req, serviceRegistry, route)
 		})
 	})
 
 	return router
+}
+
+// proxyToService resolves the service and proxies the request
+func proxyToService(
+	w http.ResponseWriter,
+	req *http.Request,
+	serviceRegistry *gateway.ServiceRegistry,
+	route *gateway.RouteMapping,
+) {
+	service, ok := serviceRegistry.Resolve(route.ServiceKey)
+	if !ok {
+		http.Error(w, "service not found", http.StatusBadGateway)
+		return
+	}
+
+	proxyRequest(
+		w,
+		req,
+		service.URL,
+		route.TargetPath,
+	)
 }
 
 func proxyRequest(

@@ -28,3 +28,8 @@ func HashKey(secret string) string {
 	hash := sha256.Sum256([]byte(secret))
 	return hex.EncodeToString(hash[:])
 }
+
+func VerifyKey(secret, storedHash string) bool {
+	hash := sha256.Sum256([]byte(secret))
+	return hex.EncodeToString(hash[:]) == storedHash
+}

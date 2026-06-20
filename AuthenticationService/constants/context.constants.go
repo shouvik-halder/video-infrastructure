@@ -2,5 +2,8 @@ package constants
 
 type contextKey string
 
-var ValidatorContextKey contextKey = "ValidatedPayload"
-var UserIdContextKey contextKey = "UserId"
+const (
+	ValidatorContextKey contextKey = "ValidatedPayload"
+	UserIdContextKey    contextKey = "UserId"
+	ApiKeyContextKey    contextKey = "ApiKey"
+)

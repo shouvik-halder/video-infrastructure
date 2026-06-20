@@ -26,9 +26,9 @@ func (apiRepo *apiKeysRepositoryImpl) Create(userId int64, keyId, keyHash string
 	return apiRepo.GetApiKeyById(id)
 }
 
-func (apiRepo *apiKeysRepositoryImpl) Get(keyId string) (*models.ApiKey, error) {
-	query := `SELECT user_id, key_id, key_hash FROM api_keys WHERE key_id= ? AND revoked_at IS NULL`
-	row := apiRepo.sqldb.QueryRow(query, keyId)
+func (apiRepo *apiKeysRepositoryImpl) Get(keyId string, userId int64) (*models.ApiKey, error) {
+	query := `SELECT user_id, key_id, key_hash FROM api_keys WHERE key_id= ? AND user_id = ? AND revoked_at IS NULL`
+	row := apiRepo.sqldb.QueryRow(query, keyId, userId)
 	apiKey := &models.ApiKey{}
 	err := row.Scan(&apiKey.UserId, &apiKey.KeyId, &apiKey.KeyHash)
 	if err != nil {
