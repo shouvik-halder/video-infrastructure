@@ -45,7 +45,6 @@ func proxyRequest(w http.ResponseWriter, req *http.Request, targetURL string, pr
 			proxyReq.Out.URL.Path = "/api" + pathWithoutPrefix
 
 			proxyReq.SetXForwarded()
-
 			requestID := proxyReq.In.Header.Get("X-Request-ID")
 			if requestID == "" {
 				requestID = helpers.GenerateRequestID()
