@@ -18,7 +18,7 @@ func AuthenticateApiKey() func(http.Handler) http.Handler {
 				return
 			}
 
-			if len(parts[1]) != 16 && len(parts[2]) != 64 {
+			if len(parts[1]) != 16 || len(parts[2]) != 64 {
 				utils.WriteErrorJsonResponse(w, http.StatusUnauthorized, "invalid apikey")
 				return
 			}

@@ -61,7 +61,6 @@ func (r *RouteRegistry) RegisterAll() {
 		RequireAuth: true,
 	})
 
-	// Protected upload service routes (require API key verification)
 	r.Register(RouteMapping{
 		Method:      "GET",
 		PublicPath:  "/api/upload/ping",

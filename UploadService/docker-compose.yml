@@ -1,0 +1,44 @@
+version: '1.0'
+
+name: video-infra-upload-service
+services:
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: video-infra-upload-service-rustfs
+
+    environment:
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS=*
+      - RUSTFS_ACCESS_KEY=user
+      - RUSTFS_SECRET_KEY=user123
+    
+    restart: unless-stopped
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    volumes:
+      - uploadservice:/data/rustfs
+
+  mysql:
+    image: mysql
+    restart: unless-stopped
+    container_name: video-infra-upload-service-mysql
+
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user123
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: uploadservicedb
+
+    ports:
+      - "3381:3306"
+
+    volumes:
+      - uploadservice:/var/lib/mysql
+
+volumes:
+  uploadservice:

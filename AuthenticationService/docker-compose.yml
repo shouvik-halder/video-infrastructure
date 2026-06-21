@@ -1,10 +1,11 @@
 version: '1.0'
 
+name: video-infra-authentication-service
 services:
   mysql:
     image: mysql
     restart: always
-    container_name: video-infra-authentication-service
+    container_name: video-infra-authentication-service-mysql
 
     environment:
       MYSQL_USER: user

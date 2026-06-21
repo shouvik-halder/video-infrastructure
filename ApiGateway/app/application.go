@@ -32,9 +32,11 @@ func NewApplication() *Application {
 
 func (app *Application) Run() error {
 
+	authRouter := routers.NewAuthRouter(app.config.Service.AUTH_SERVICE_URL)
+	uploadService := routers.NewUploadRouter(app.config.Service.UPLOAD_SERVICE_URL)
 	server := &http.Server{
 		Addr:         app.config.Server.PORT,
-		Handler:      routers.InitialiseRouters(app.serviceRegistry, app.routeRegistry),
+		Handler:      routers.InitialiseRouters(authRouter, uploadService),
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 	}
