@@ -18,7 +18,7 @@ func NewUploadRouter(serviceURL string) *UploadRouter {
 
 func (ur *UploadRouter) Register(r chi.Router) {
 	r.Route("/upload", func(r chi.Router) {
-
+		r.Use(middlewares.AuthenticateAccesstoken())
 		r.Use(middlewares.AuthenticateApiKey())
 
 		r.Get("/ping", func(w http.ResponseWriter, req *http.Request) {

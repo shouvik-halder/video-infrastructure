@@ -21,7 +21,7 @@ services:
       - "9001:9001"
 
     volumes:
-      - uploadservice:/data/rustfs
+      - uploadservice_rustfs:/data/rustfs
 
   mysql:
     image: mysql
@@ -38,7 +38,8 @@ services:
       - "3381:3306"
 
     volumes:
-      - uploadservice:/var/lib/mysql
+      - uploadservice_mysql:/var/lib/mysql
 
 volumes:
-  uploadservice:
+  uploadservice_rustfs:
+  uploadservice_mysql:

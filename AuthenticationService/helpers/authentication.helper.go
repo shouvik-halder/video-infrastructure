@@ -3,9 +3,9 @@ package helpers
 import (
 	"AuthenticationService/configs"
 	"AuthenticationService/models"
+	"fmt"
 	"strconv"
 	"time"
-	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -55,7 +55,7 @@ func ValidateToken(tokenString string) (*models.Claims, error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&models.Claims{},
-		func(token *jwt.Token) (interface{}, error) {
+		func(token *jwt.Token) (any, error) {
 
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

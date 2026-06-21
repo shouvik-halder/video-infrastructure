@@ -3,6 +3,6 @@ package constants
 type ContextKey string
 
 const (
-	ApiKeyContextKey    ContextKey = "ApiKey"
-	PrincipalContextKey ContextKey = "Principal"
+	ApiKeyContextKey ContextKey = "ApiKey"
+	UserIdContextKey ContextKey = "UserID"
 )

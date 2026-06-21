@@ -10,9 +10,14 @@ type serviceConfig struct {
 	AUTH_SERVICE_URL   string
 	UPLOAD_SERVICE_URL string
 }
+
+type authenticationConfig struct {
+	TOKENSECRET string
+}
 type Config struct {
 	Server  serverConfig
 	Service serviceConfig
+	Auth    authenticationConfig
 }
 
 var config *Config
@@ -26,6 +31,9 @@ func Load() *Config {
 		Service: serviceConfig{
 			AUTH_SERVICE_URL:   env.GetString("AUTH_SERVICE_URL", ""),
 			UPLOAD_SERVICE_URL: env.GetString("UPLOAD_SERVICE_URL", ""),
+		},
+		Auth: authenticationConfig{
+			TOKENSECRET: env.GetString("TOKENSECRET", ""),
 		},
 	}
 
