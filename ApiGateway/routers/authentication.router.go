@@ -10,10 +10,14 @@ import (
 
 type AuthRouter struct {
 	serviceURL string
+	authMiddleware *middlewares.AuthMiddleware
 }
 
-func NewAuthRouter(serviceURL string) *AuthRouter {
-	return &AuthRouter{serviceURL: serviceURL}
+func NewAuthRouter(serviceURL string, authMiddleware *middlewares.AuthMiddleware) *AuthRouter {
+	return &AuthRouter{
+		serviceURL: serviceURL,
+		authMiddleware :authMiddleware,
+	}
 }
 
 func (ar *AuthRouter) Register(r chi.Router) {
@@ -30,14 +34,14 @@ func (ar *AuthRouter) Register(r chi.Router) {
 		})
 
 		r.Group(func(r chi.Router) {
-			r.Use(middlewares.AuthenticateAccesstoken())
+			r.Use(ar.authMiddleware.AuthenticateAccesstoken())
 
 			r.Route("/api-key", func(r chi.Router) {
 				r.Post("/create", func(w http.ResponseWriter, req *http.Request) {
 					helpers.ProxyRequest(w, req, ar.serviceURL, "/api/v1/api-key/create")
 				})
 
-				r.With(middlewares.AuthenticateApiKey()).Get("/verify", func(w http.ResponseWriter, req *http.Request) {
+				r.With(ar.authMiddleware.AuthenticateApiKey()).Get("/verify", func(w http.ResponseWriter, req *http.Request) {
 					helpers.ProxyRequest(w, req, ar.serviceURL, "/api/v1/api-key/verify")
 				})
 			})

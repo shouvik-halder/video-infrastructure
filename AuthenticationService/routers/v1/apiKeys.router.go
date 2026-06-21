@@ -19,7 +19,9 @@ func NewApiKeysRouter(apiKeysControl *controllers.ApiKeysController) *ApiKeysRou
 
 func (apiKeysRouter *ApiKeysRouter) Register(r chi.Router) {
 	r.Route("/api-key", func(r chi.Router) {
-		r.With(middlewares.ValidateToken()).Post("/create", apiKeysRouter.apiKeysController.CreateController)
-		r.With(middlewares.ValidateToken(), middlewares.ExtractApiKey()).Get("/verify", apiKeysRouter.apiKeysController.VerifyController)
+		r.Use(middlewares.ExtractUserId())
+
+		r.Post("/create", apiKeysRouter.apiKeysController.CreateController)
+		r.With(middlewares.ExtractApiKey()).Get("/verify", apiKeysRouter.apiKeysController.VerifyController)
 	})
 }

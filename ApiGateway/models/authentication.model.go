@@ -7,3 +7,8 @@ type Claims struct {
 	Email  string `json:"email"`
 	jwt.RegisteredClaims
 }
+
+type validateApiKeyResponse struct {
+	UserId int64  `json:"user_id"`
+	KeyId  string `json:"key_id"`
+}

@@ -1,5 +1,6 @@
 package models
 
 type Principal struct {
-	UserID string `json:"user_id"`
+	UserId int64  `json:"user_id"`
+	KeyId  string `json:"key_id"`
 }

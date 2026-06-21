@@ -9,17 +9,21 @@ import (
 )
 
 type UploadRouter struct {
-	serviceURL string
+	serviceURL     string
+	authMiddleware *middlewares.AuthMiddleware
 }
 
-func NewUploadRouter(serviceURL string) *UploadRouter {
-	return &UploadRouter{serviceURL: serviceURL}
+func NewUploadRouter(serviceURL string, authMiddleware *middlewares.AuthMiddleware) *UploadRouter {
+	return &UploadRouter{
+		serviceURL:     serviceURL,
+		authMiddleware: authMiddleware,
+	}
 }
 
 func (ur *UploadRouter) Register(r chi.Router) {
 	r.Route("/upload", func(r chi.Router) {
-		r.Use(middlewares.AuthenticateAccesstoken())
-		r.Use(middlewares.AuthenticateApiKey())
+		r.Use(ur.authMiddleware.AuthenticateAccesstoken())
+		r.Use(ur.authMiddleware.AuthenticateApiKey())
 
 		r.Get("/ping", func(w http.ResponseWriter, req *http.Request) {
 			helpers.ProxyRequest(w, req, ur.serviceURL, "/ping")

@@ -39,12 +39,11 @@ func (apiServ *ApiKeysServiceImpl) CreateService(userId int64) (*models.ApiKeyRe
 	}
 
 	return &models.ApiKeyResponse{
-		ApiKeyId: apikeyStr,
-		UserId:   userId,
+		ApiKey: apikeyStr,
 	}, nil
 }
 
-func (apiServ *ApiKeysServiceImpl) VerifyService(key string, userId int64) (*models.ApiKeyResponse, error) {
+func (apiServ *ApiKeysServiceImpl) VerifyService(key string, userId int64) (*models.ApiKeyVerificationResponse, error) {
 	parts := strings.Split(key, "_")
 	apiKey, err := apiServ.apiRepo.Get(parts[1], userId)
 	if err != nil {
@@ -54,10 +53,9 @@ func (apiServ *ApiKeysServiceImpl) VerifyService(key string, userId int64) (*mod
 	if ok := helpers.VerifyKey(parts[2], apiKey.KeyHash); !ok {
 		return nil, fmt.Errorf("invalid api key")
 	}
-
-	return &models.ApiKeyResponse{
-		ApiKeyId: apiKey.KeyId,
-		UserId:   userId,
+	return &models.ApiKeyVerificationResponse{
+		UserId: userId,
+		KeyId:  parts[1],
 	}, nil
 }
 

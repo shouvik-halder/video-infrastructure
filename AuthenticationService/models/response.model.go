@@ -9,6 +9,10 @@ type AuthResponse struct {
 }
 
 type ApiKeyResponse struct {
-	ApiKeyId string `json:"apiKeyId"`
-	UserId   int64  `json:"userId"`
+	ApiKey string `json:"apiKey"`
+}
+
+type ApiKeyVerificationResponse struct {
+	UserId int64  `json:"user_id"`
+	KeyId  string `json:"key_id"`
 }

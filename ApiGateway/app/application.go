@@ -3,13 +3,14 @@ package app
 import (
 	"ApiGateway/configs"
 	"ApiGateway/gateway"
+	"ApiGateway/middlewares"
 	"ApiGateway/routers"
 	"net/http"
 	"time"
 )
 
 type Application struct {
-	config          *configs.Config
+	config *configs.Config
 	// serviceRegistry *gateway.ServiceRegistry
 	// routeRegistry   *gateway.RouteRegistry
 }
@@ -24,7 +25,7 @@ func NewApplication() *Application {
 	_routeRegistry.RegisterAll()
 
 	return &Application{
-		config:          cfg,
+		config: cfg,
 		// serviceRegistry: _serviceRegistry,
 		// routeRegistry:   _routeRegistry,
 	}
@@ -32,8 +33,18 @@ func NewApplication() *Application {
 
 func (app *Application) Run() error {
 
-	authRouter := routers.NewAuthRouter(app.config.Service.AUTH_SERVICE_URL)
-	uploadService := routers.NewUploadRouter(app.config.Service.UPLOAD_SERVICE_URL)
+	httpClient := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	// AuthMiddleware is constructed once and shared across all routers
+	authMiddleware := middlewares.NewAuthMiddleware(
+		app.config.Service.AUTH_SERVICE_URL,
+		httpClient,
+	)
+
+	authRouter := routers.NewAuthRouter(app.config.Service.AUTH_SERVICE_URL, authMiddleware)
+	uploadService := routers.NewUploadRouter(app.config.Service.UPLOAD_SERVICE_URL, authMiddleware)
 	server := &http.Server{
 		Addr:         app.config.Server.PORT,
 		Handler:      routers.InitialiseRouters(authRouter, uploadService),

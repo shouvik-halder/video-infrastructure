@@ -10,6 +10,6 @@ type ApiKeysRepository interface {
 
 type ApiKeysService interface {
 	CreateService(userId int64) (*models.ApiKeyResponse, error)
-	VerifyService(keyId string, userId int64) (*models.ApiKeyResponse, error)
+	VerifyService(keyId string, userId int64) (*models.ApiKeyVerificationResponse, error)
 	RevokeService(keyId string) error
 }
